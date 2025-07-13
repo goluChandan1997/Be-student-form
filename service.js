@@ -33,6 +33,19 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/students", studentRoutes);
 app.use("/api/admin", adminRoutes);
 
+// get request
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    message: "Welcome to the Student Management API",
+    routes: {
+      students: "/api/students",
+      admin: "/api/admin",
+      health: "/health",
+    },
+  });
+});
+
 // Health check route
 app.get("/health", (req, res) => {
   res.status(200).json({
