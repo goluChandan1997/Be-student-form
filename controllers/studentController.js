@@ -48,13 +48,24 @@ const createStudent = async (req, res) => {
       });
     }
 
-    // Check if student with email already exists
-    const existingStudent = await Student.findOne({ email });
-    if (existingStudent) {
-      console.log("Student with email already exists:", email);
+    // // Check if student with email already exists
+    // const existingStudent = await Student.findOne({ email });
+    // if (existingStudent) {
+    //   console.log("Student with email already exists:", email);
+    //   return res
+    //     .status(400)
+    //     .json({ error: "Student with this email already exists" });
+    // }\
+
+    // check if mobile number already exists 5 times then show error
+    const existingMobileStudent = await Student.find({ mobile });
+    if (existingMobileStudent.length >= 5) {
+      console.log("Student with mobile number already exists:", mobile);
       return res
         .status(400)
-        .json({ error: "Student with this email already exists" });
+        .json({
+          error: "Maximum 5 students can register with same mobile number",
+        });
     }
 
     // Check if file was uploaded
@@ -163,12 +174,12 @@ const createStudent = async (req, res) => {
         .json({ error: "Validation failed", details: errors });
     }
 
-    if (error.code === 11000) {
-      console.log("Duplicate key error:", error.keyValue);
-      return res
-        .status(400)
-        .json({ error: "Student with this email already exists" });
-    }
+    // if (error.code === 11000) {
+    //   console.log("Duplicate key error:", error.keyValue);
+    //   return res
+    //     .status(400)
+    //     .json({ error: "Student with this email already exists" });
+    // }
 
     console.error("Unhandled error creating student:", error);
     res.status(500).json({
@@ -461,15 +472,15 @@ const updateStudent = async (req, res) => {
       return res.status(404).json({ error: "Student not found" });
     }
 
-    // Check if email is being changed and if new email already exists
-    if (email && email !== existingStudent.email) {
-      const emailExists = await Student.findOne({ email, _id: { $ne: id } });
-      if (emailExists) {
-        return res
-          .status(400)
-          .json({ error: "Student with this email already exists" });
-      }
-    }
+    // // Check if email is being changed and if new email already exists
+    // if (email && email !== existingStudent.email) {
+    //   const emailExists = await Student.findOne({ email, _id: { $ne: id } });
+    //   if (emailExists) {
+    //     return res
+    //       .status(400)
+    //       .json({ error: "Student with this email already exists" });
+    //   }
+    // }
 
     // Prepare update object
     const updateData = {};
@@ -547,11 +558,11 @@ const updateStudent = async (req, res) => {
         .json({ error: "Validation failed", details: errors });
     }
 
-    if (error.code === 11000) {
-      return res
-        .status(400)
-        .json({ error: "Student with this email already exists" });
-    }
+    // if (error.code === 11000) {
+    //   return res
+    //     .status(400)
+    //     .json({ error: "Student with this email already exists" });
+    // }
 
     console.error("Error updating student:", error);
     res.status(500).json({ error: "Internal server error" });

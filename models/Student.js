@@ -105,7 +105,7 @@ studentSchema.set("toJSON", { virtuals: true });
 studentSchema.set("toObject", { virtuals: true });
 
 // Add index for faster queries
-studentSchema.index({ mobile: 1 });
+studentSchema.index({ mobile: 3 });
 studentSchema.index({ createdAt: -1 });
 studentSchema.index({ studyStartDate: 1 });
 studentSchema.index({ studyEndDate: 1 });
