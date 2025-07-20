@@ -1311,12 +1311,12 @@ const getAllStudents = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const includePicture = req.query.includePicture === "true";
+    // const includePicture = req.query.includePicture === "true";
 
-    // Select fields based on whether pictures are needed
-    let selectFields = includePicture ? {} : { picture: 0 };
+    // // Select fields based on whether pictures are needed
+    // let selectFields = includePicture ? {} : { picture: 0 };
 
-    const students = await Student.find({}, selectFields)
+    const students = await Student.find()
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
