@@ -49,8 +49,12 @@ const studentSchema = new mongoose.Schema(
       },
     },
     picture: {
-      type: String,
+      type: String, // Base64 encoded image
       required: [true, "Picture is required"],
+    },
+    pictureMimeType: {
+      type: String, // MIME type of the image (e.g., 'image/jpeg', 'image/png')
+      required: [true, "Picture MIME type is required"],
     },
     feedback: {
       type: String,
