@@ -17,7 +17,7 @@ const studentSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Email is required"],
-      // unique: true,
+      unique: true,
       trim: true,
       lowercase: true,
       match: [
@@ -37,17 +37,19 @@ const studentSchema = new mongoose.Schema(
       min: [1, "Age must be at least 1"],
       max: [100, "Age cannot exceed 100"],
     },
-    studyDurationYears: {
-      type: Number,
-      required: [true, "Study duration years is required"],
-      min: [0, "Years cannot be negative"],
-      max: [20, "Years cannot exceed 20"],
+    studyStartDate: {
+      type: Date,
+      required: [true, "Study start date is required"],
     },
-    studyDurationMonths: {
-      type: Number,
-      required: [true, "Study duration months is required"],
-      min: [0, "Months cannot be negative"],
-      max: [11, "Months cannot exceed 11"],
+    studyEndDate: {
+      type: Date,
+      required: [true, "Study end date is required"],
+      validate: {
+        validator: function (value) {
+          return value > this.studyStartDate;
+        },
+        message: "Study end date must be after start date",
+      },
     },
     picture: {
       type: String,
@@ -71,9 +73,40 @@ const studentSchema = new mongoose.Schema(
   }
 );
 
+// Virtual field to calculate study duration
+studentSchema.virtual("studyDuration").get(function () {
+  if (this.studyStartDate && this.studyEndDate) {
+    const diffTime = Math.abs(
+      this.studyEndDate.getTime() - this.studyStartDate.getTime()
+    );
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const years = Math.floor(diffDays / 365);
+    const months = Math.floor((diffDays % 365) / 30);
+    const days = diffDays % 30;
+
+    return {
+      totalDays: diffDays,
+      years: years,
+      months: months,
+      days: days,
+      formatted: `${
+        years > 0 ? years + " year" + (years > 1 ? "s" : "") + ", " : ""
+      }${months > 0 ? months + " month" + (months > 1 ? "s" : "") + ", " : ""}${
+        days > 0 ? days + " day" + (days > 1 ? "s" : "") : ""
+      }`,
+    };
+  }
+  return null;
+});
+
+// Ensure virtual fields are serialized
+studentSchema.set("toJSON", { virtuals: true });
+studentSchema.set("toObject", { virtuals: true });
+
 // Add index for faster queries
-studentSchema.index({ email: 1 });
 studentSchema.index({ mobile: 1 });
 studentSchema.index({ createdAt: -1 });
+studentSchema.index({ studyStartDate: 1 });
+studentSchema.index({ studyEndDate: 1 });
 
 module.exports = mongoose.model("Student", studentSchema);
